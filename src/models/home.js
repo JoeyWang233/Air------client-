@@ -121,6 +121,8 @@ export default {
         });
       });
       /* 触发 "querySuccess" action */
+      console.log('promise');
+      console.log(data);
       yield put({ type: 'querySuccess', payload: { data } });
     },
     /**
