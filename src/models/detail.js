@@ -33,6 +33,8 @@ export default {
              * 'status'：将数据处理，将处理结果content放入state
              * 'constParm'：同步操作，将data数据放入detail中的constParm字段中
              */
+            console.log("emit('tableData') once('deviceData')");
+            console.log(data);
             dispatch({ type: 'status', payload: { data: data[0], DevSN: match[1], statusNo: 1 } });
             dispatch({ type: 'constParm', payload: { data: data[1] } });
           });

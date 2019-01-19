@@ -16,6 +16,8 @@ export default {
                 if (match) { 
                     socket.emit('upgrade',{type:0})
                     socket.once('upgradeList',(data)=>{
+                        console.log('emit(upgrade) once(upgradeList)');
+                        console.log(data);
                         let upgrade = [],notUpgrade = []
                         if(data[0].length){
                             data[0].forEach(element => {
@@ -40,12 +42,16 @@ export default {
         socket.emit('upgrade',{type:1,DevSN,ifUpgrade})
         let result = yield new Promise( resolve => {
             socket.once('upgradeResult',(data)=>{
+                console.log('emit(upgrade) once(upgradeResult)');
+                console.log(data);
                 resolve(data)
             })
         }) 
         if(result){
             let alterResult = yield new Promise( resolve => {
                 socket.once('upgradeAlterResult',(data)=>{
+                    console.log('无emit once(upgradeAlterResult)');
+                    console.log(data);
                     resolve(data)
                 })
             }) 
@@ -63,6 +69,8 @@ export default {
             socket.emit('upgrade',{type:2,DevSN,ifUpgrade})
             let result = yield new Promise( resolve => {
                 socket.once('upgradeResult',(data)=>{
+                    console.log('emit(upgrade) once(upgradeResult)');
+                    console.log(data);
                     resolve(data)
                 })
             }) 
@@ -77,6 +85,8 @@ export default {
             socket.emit('upgrade',{type:3,DevSN,ifUpgrade})
             let result = yield new Promise( resolve => {
                 socket.once('upgradeResult',(data)=>{
+                    console.log('emit(upgrade) once(upgradeResult)');
+                    console.log(data);
                     resolve(data)
                 })
             }) 

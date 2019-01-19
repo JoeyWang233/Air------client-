@@ -38,6 +38,8 @@ export default {
         if (match) {
           socket.emit('home', { type: 'first', statusNo: 0, mcTransNo: 0, mcTransNum: 0, statusNum: 0, DevSN: '', EventTime: [], dataType: 'All' });
           socket.once('homeData', (data) => {
+            console.log('emit(home) once(homeData)');
+            console.log(data);
             dispatch({ type: 'querySuccess', payload: { data } });
           });
         }

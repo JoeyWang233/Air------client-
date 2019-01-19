@@ -46,6 +46,8 @@ export default {
       const data = yield call(() => {
         return new Promise((resolve) => {
           socket.once('DevProps', (data) => {
+            console.log('once(DevProps)');
+            console.log(data);
             resolve(data);
           });
         });
@@ -128,6 +130,8 @@ export default {
           const result = yield call(() => {
             return new Promise((resolve) => {
               socket.once('alterProps', (data) => {
+                console.log('once(alterProps)');
+                console.log(data);
                 resolve(data);
               });
             });

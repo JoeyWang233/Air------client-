@@ -60,6 +60,8 @@ class Devices extends React.Component {
     this.setState({ loading: true });
     socket.emit('Props', params);
     socket.once('DevSN', (data) => {
+      console.log('emit(Props) once(DevSN)');
+      console.log(data);
       const DevSNs = [];
       for (let index = 0; index < data[0].length; index += 1) {
         DevSNs.push(data[0][index].DevSN);
