@@ -1,9 +1,12 @@
+/* eslint-disable padded-blocks */
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable no-plusplus */
 import React from 'react';
 import { Button, Row, Col, Input, Table } from 'antd';
 import { Link } from 'react-router-dom';
+import fetch from 'dva/fetch';
 import socket from '../services/socket.js';
 
 const Search = Input.Search;
@@ -61,35 +64,62 @@ class Devices extends React.Component {
   fetch = (params = { DevSN: '', type: 0, page: 1 }) => {
     const lists = [];
     this.setState({ loading: true });
-    socket.emit('Props', params);
-    socket.once('DevSN', (data) => {
+    //socket.emit('Props', params);
+    // socket.once('DevSN', (data) => {
 
-      console.log('emit(Props) once(DevSN)');
-      console.log(data);
+    //   console.log('emit(Props) once(DevSN)');
+    //   console.log(data);
       
-      const DevSNs = [];
-      for (let index = 0; index < data[0].length; index += 1) {
-        DevSNs.push(data[0][index].DevSN);
-      }
-      for (let i = 0; i < DevSNs.length;) {
-        lists.push({
-          key: i,
-          DevSN1: DevSNs[i++],
-          DevSN2: DevSNs[i++],
-          DevSN3: DevSNs[i++],
+    //   const DevSNs = [];
+    //   for (let index = 0; index < data[0].length; index += 1) {
+    //     DevSNs.push(data[0][index].DevSN);
+    //   }
+    //   for (let i = 0; i < DevSNs.length;) {
+    //     lists.push({
+    //       key: i,
+    //       DevSN1: DevSNs[i++],
+    //       DevSN2: DevSNs[i++],
+    //       DevSN3: DevSNs[i++],
+    //     });
+    //   }
+    //   const pagination = { ...this.state.pagination };
+    //   // Read total count from server
+    //   // pagination.total = data.totalCount;
+    //   pagination.total = data[1];
+    //   this.setState({
+    //     /* 改变state，改变之后即可渲染页面 */
+    //     loading: false,
+    //     data: lists,
+    //     pagination,
+    //   });
+    // });
+
+    fetch('https://localhost:44382/api/Device_Lst')
+      .then(response => response.json())
+      .then((data) => {
+        const DevSNs = [];
+        for (let index = 0; index < data.length; index += 1) {
+          DevSNs.push(data[index].devSN);
+        }
+        console.log(DevSNs);
+        for (let i = 0; i < DevSNs.length;) {
+          lists.push({
+            key: i,
+            DevSN1: DevSNs[i++],
+            DevSN2: DevSNs[i++],
+            DevSN3: DevSNs[i++],
+          });
+        }
+        console.log(lists);
+        const pagination = { ...this.state.pagination };
+        pagination.total = data.length;
+        this.setState({
+          /* 改变state，改变之后即可渲染页面 */
+          loading: false,
+          data: lists,
+          pagination,
         });
-      }
-      const pagination = { ...this.state.pagination };
-      // Read total count from server
-      // pagination.total = data.totalCount;
-      pagination.total = data[1];
-      this.setState({
-        /* 改变state，改变之后即可渲染页面 */
-        loading: false,
-        data: lists,
-        pagination,
       });
-    });
   }
   handleSearch = (value) => {
     if (value) {
