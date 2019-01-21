@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-shadow */
 /* eslint-disable no-plusplus */
 import pathToRegexp from 'path-to-regexp';
@@ -42,6 +43,12 @@ export default {
             console.log(data);
             dispatch({ type: 'querySuccess', payload: { data } });
           });
+
+          /* 测试：fetch异步获取数据，并在控制台打印出来。Mock数据在.roadhogrc.mock.js文件。 测试成功 */
+          /* const test = fetch('api/users')
+          .then(response => response.json())
+          .then(myJosn => console.log(myJosn));
+          console.log(test); */
         }
       });
     },
