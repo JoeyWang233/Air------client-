@@ -4,7 +4,9 @@
 import pathToRegexp from 'path-to-regexp';
 import { Table, message } from 'antd';
 import React from 'react';
+import fetch from 'dva/fetch';
 import socket from '../services/socket.js';
+import { apiServer } from '../utils/config';
 
 export default {
     /**
@@ -37,18 +39,17 @@ export default {
       history.listen(({ pathname }) => {
         const match = pathToRegexp('/').exec(pathname);
         if (match) {
-          socket.emit('home', { type: 'first', statusNo: 0, mcTransNo: 0, mcTransNum: 0, statusNum: 0, DevSN: '', EventTime: [], dataType: 'All' });
-          socket.once('homeData', (data) => {
-            console.log('emit(home) once(homeData)');
-            console.log(data);
-            dispatch({ type: 'querySuccess', payload: { data } });
-          });
+          /* https://localhost:44382/api/home/homeAll?type=first&statusNo=0&mcTransNo=0&mcTransNum=0&statusNum=0&DevSN=&EventTime=1994-09-09&EventTime=1998-08-08 */
+          /* https://localhost:44382/api/home/homeAll?type=first&statusNo=0&mcTransNo=0&mcTransNum=0&statusNum=0&DevSN=&EventTime=&EventTime= */
 
-          /* 测试：fetch异步获取数据，并在控制台打印出来。Mock数据在.roadhogrc.mock.js文件。 测试成功 */
-          /* const test = fetch('api/users')
-          .then(response => response.json())
-          .then(myJosn => console.log(myJosn));
-          console.log(test); */
+          const queryString = '?type=first&statusNo=0&mcTransNo=0&mcTransNum=0&statusNum=0&DevSN=&EventTime=&EventTime=';
+          const url = `${apiServer}api/home/homeAll${queryString}`;
+          fetch(url)
+            .then(reponse => reponse.json())
+            .then((data) => {
+              console.log(data);
+              dispatch({ type: 'querySuccess', payload: { data } });
+            });
         }
       });
     },
@@ -75,8 +76,9 @@ export default {
       /* 获取state全局中的home */
       const home = yield select(state => state.home);
       if (dataType.length) {
-          /* Select Type处不为空 */
+          /* Select Type处有筛选条件时 */
         if (dataType[0] === 'Status') {
+          /* 第一级筛选：'Status',如果有第二级筛选，就将第二级筛选值赋给dType；没有则dType='Status'*/
           let dType;
           if (dataType[1]) {
             dType = dataType[1];
@@ -94,10 +96,11 @@ export default {
           } else if (type === 'first') {
             socket.emit('home', { type, statusNo: 0, DevSN, Index, EventTime, dataType: dType });
           } else {
+            //last
             socket.emit('home', { type, statusNo, DevSN, Index, EventTime, dataType: dType });
           }
         } else {
-            /* McTrans */
+            /* 第一级筛选条件：'McTrans' */
           const { mcTransNo, last } = home;
           if (type === 'left' && mcTransNo === 0) {
             message.warning('No more data.');
@@ -143,9 +146,11 @@ export default {
       /* 触发同步中的 "save" 操作，更新检索条件 */
       yield put({ type: 'save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } });
       Index.sort();
+
       if (EventTime[0]) {
         EventTime = [EventTime[0].format('YYYY-MM-DD'), EventTime[1].format('YYYY-MM-DD')];
       }
+      console.log(EventTime);
       if (dataType.length) {
         if (dataType[0] === 'Status') {
           socket.emit('home', { type: 'first', statusNo: 0, DevSN, Index, EventTime, dataType: dataType[1] ? dataType[1] : 'Status' });

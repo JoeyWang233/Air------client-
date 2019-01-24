@@ -68,7 +68,7 @@ function Home({ home, dispatch }) {
   const handleDevSN = (e) => { DevSN = e.target.value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   const handleIndex1 = (e) => { Index[0] = e.target.value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   const handleIndex2 = (e) => { Index[1] = e.target.value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
-  const handleTime = (dates) => { EventTime = dates; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
+  const handleTime = (dates) => { EventTime = dates; console.log(EventTime); dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   /* "类型" 条件选择完成后的回调 */
   const handleType = (value) => { dataType = value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   /* 点击 Reset 按钮后的回调 */
