@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable no-shadow */
@@ -97,14 +98,33 @@ export default {
           if (type === 'left' && statusNo === 0) {
             message.warning('No more data.');
           } else if (type === 'right' && last) {
+            console.log('right and last');
             message.warning('No more data.');
           } else if (type === 'first') {
             queryString = `?type=${type}&statusNo=0&DevSN=${DevSN}&Index=${Index[0]}&Index=${Index[1]}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}&dataType=${dType}`;
             url = `${apiServer}api/home/${dataType[1] ? 'AlarmOrLogin' : 'Status'}${queryString}`;
+
+            console.log('要调用fetch啦');
+            yield fetch(url)
+              .then(response => response.json())
+              .then((data1) => { data = data1; console.log('1'); });
+            console.log('fetch调用完啦');
+
+            console.log(data);
+            yield put({ type: 'querySuccess', payload: { data } });
             // socket.emit('home', { type, statusNo: 0, DevSN, Index, EventTime, dataType: dType });
           } else {
             queryString = `?type=${type}&statusNo=${statusNo}&DevSN=${DevSN}&Index=${Index[0]}&Index=${Index[1]}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}&dataType=${dType}`;
             url = `${apiServer}api/home/${dataType[1] ? 'AlarmOrLogin' : 'Status'}${queryString}`;
+
+            console.log('要调用fetch啦');
+            yield fetch(url)
+              .then(response => response.json())
+              .then((data1) => { data = data1; console.log('1'); });
+            console.log('fetch调用完啦');
+
+            console.log(data);
+            yield put({ type: 'querySuccess', payload: { data } });
             // socket.emit('home', { type, statusNo, DevSN, Index, EventTime, dataType: dType });
           }
         } else {
@@ -115,12 +135,32 @@ export default {
           } else if (type === 'right' && last) {
             message.warning('No more data.');
           } else if (type === 'first') {
-            queryString = `?type=${type}&mcTransNo=0&DevSN=${DevSN}&Index=${Index[0]}&Index=${Index[1]}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}&dataType=${dataType}`;
+            queryString = `?type=${type}&mcTransNo=0&DevSN=${DevSN}&Index=${Index[0]}&Index=${Index[1]}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}&dataType=${dataType[0]}&dataType=${dataType[1]}`;
             url = `${apiServer}api/home/McTrans${queryString}`;
+            
+            console.log('要调用fetch啦');
+            yield fetch(url)
+              .then(response => response.json())
+              .then((data1) => { data = data1; console.log('1'); });
+            console.log('fetch调用完啦');
+
+            console.log(data);
+            yield put({ type: 'querySuccess', payload: { data } });
+            
             // socket.emit('home', { type, mcTransNo: 0, DevSN, Index, EventTime, dataType });
           } else {
-            queryString = `?type=${type}&mcTransNo=${mcTransNo}&DevSN=${DevSN}&Index=${Index[0]}&Index=${Index[1]}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}&dataType=${dataType}`;
+            queryString = `?type=${type}&mcTransNo=${mcTransNo}&DevSN=${DevSN}&Index=${Index[0]}&Index=${Index[1]}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}&dataType=${dataType[0]}&dataType=${dataType[1]}`;
             url = `${apiServer}api/home/McTrans${queryString}`;
+            
+            console.log('要调用fetch啦');
+            yield fetch(url)
+              .then(response => response.json())
+              .then((data1) => { data = data1; console.log('1'); });
+            console.log('fetch调用完啦');
+
+            console.log(data);
+            yield put({ type: 'querySuccess', payload: { data } });
+
             // socket.emit('home', { type, mcTransNo, DevSN, Index, EventTime, dataType });
           }
         }
@@ -135,10 +175,30 @@ export default {
         } else if (type === 'first') {
           queryString = `?type=${type}&statusNo=0&mcTransNo=0&mcTransNum=0&statusNum=0&DevSN=${DevSN}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}`;
           url = `${apiServer}api/home/All${queryString}`;
+
+          console.log('要调用fetch啦');
+          yield fetch(url)
+            .then(response => response.json())
+            .then((data1) => { data = data1; console.log('1'); });
+          console.log('fetch调用完啦');
+
+          console.log(data);
+          yield put({ type: 'querySuccess', payload: { data } });
+
           // socket.emit('home', { type, statusNo: 0, mcTransNo: 0, mcTransNum: 0, statusNum: 0, DevSN, EventTime, dataType: 'All' });
         } else {
           queryString = `?type=${type}&statusNo=${statusNo}&mcTransNo=${mcTransNo}&mcTransNum=${mcTransNum}&statusNum=${statusNum}&DevSN=${DevSN}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}`;
           url = `${apiServer}api/home/All${queryString}`;
+
+          console.log('要调用fetch啦');
+          yield fetch(url)
+            .then(response => response.json())
+            .then((data1) => { data = data1; console.log('1'); });
+          console.log('fetch调用完啦');
+
+          console.log(data);
+          yield put({ type: 'querySuccess', payload: { data } });
+          
           // socket.emit('home', { type, statusNo, mcTransNo, mcTransNum, statusNum, DevSN, EventTime, dataType: 'All' });
         }
       }
@@ -147,13 +207,6 @@ export default {
           resolve(data);
         });
       }); */
-      console.log('要调用fetch啦');
-      yield fetch(url)
-        .then(response => response.json())
-        .then((data1) => { data = data1; console.log('1'); });
-      console.log('fetch调用完啦');
-      console.log(data);
-      yield put({ type: 'querySuccess', payload: { data } });
     },
     /**
      * 调用search方法的地方有：
@@ -169,6 +222,7 @@ export default {
       /* 触发同步中的 "save" 操作，更新检索条件 */
       yield put({ type: 'save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } });
       Index.sort();
+      console.log(`2 + ${DevSN}`);
 
       if (EventTime[0]) {
         EventTime = [EventTime[0].format('YYYY-MM-DD'), EventTime[1].format('YYYY-MM-DD')];
@@ -188,7 +242,7 @@ export default {
         }
       } else {
         // homeAll
-        queryString = '?type=first&statusNo=0&mcTransNo=0&mcTransNum=0&statusNum=0&DevSN=&EventTime=undefined&EventTime=undefined';
+        queryString = `?type=first&statusNo=0&mcTransNo=0&mcTransNum=0&statusNum=0&DevSN=${DevSN}&EventTime=${EventTime[0]}&EventTime=${EventTime[1]}`;
         url = `${apiServer}api/home/All${queryString}`;
       }
       /* const data = yield new Promise((resolve) => {
@@ -206,7 +260,7 @@ export default {
     },
     /* 通过socket方式获取数据成功 */
     *querySuccess({ payload }, { put }) {
-      console.log("querySuccess第一行");
+      console.log('querySuccess第一行');
       const columns = [{
         dataIndex: 'prop1',
         width: '33%',
@@ -297,6 +351,7 @@ export default {
       });
       let last = false;
       if (homeData.length !== 8) {
+        console.log('homeData.length !== 8 ');
         last = true;
       }
       /* 更新state */

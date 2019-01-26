@@ -67,7 +67,7 @@ function Home({ home, dispatch }) {
    * 各个筛选条件选中后的回调
    * @function 每当搜索框中的值发生改变(onChange)，就调用回调来更新state中对应的搜索条件的值
    */
-  const handleDevSN = (e) => { DevSN = e.target.value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
+  const handleDevSN = (e) => { DevSN = e.target.value; console.log(`1 + ${DevSN}`); dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   const handleIndex1 = (e) => { Index[0] = e.target.value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   const handleIndex2 = (e) => { Index[1] = e.target.value; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
   const handleTime = (dates) => { EventTime = dates; dispatch({ type: 'home/save', payload: { searchValue: [dataType, DevSN, Index, EventTime] } }); };
