@@ -111,7 +111,7 @@ const Detail = ({ detail, parmsDetail, dispatch }) => {
             * detail/queryParms：仅将checked状态进行保存；
             * parmsDetail/query：获取 parms tag 要进行展示的数据
           */}
-          <CheckableTag checked={detail.checked[2]} onChange={(checked) => { if (checked) { dispatch({ type: 'detail/queryParms', payload: { checked } }); dispatch({ type: 'parmsDetail/query', payload: { DevSN: detail.DevSN } }); } }}>Parms</CheckableTag>
+          <CheckableTag checked={detail.checked[2]} onChange={(checked) => { if (checked) { console.log('before detail/queryParms');dispatch({ type: 'detail/queryParms', payload: { checked } }); dispatch({ type: 'parmsDetail/query', payload: { DevSN: detail.DevSN } }); console.log('before parmsDetail/query');} }}>Parms</CheckableTag>
         </Col>
         <Col span={8}>
           <Row>

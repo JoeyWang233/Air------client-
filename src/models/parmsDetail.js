@@ -1,11 +1,17 @@
+/* eslint-disable no-multiple-empty-lines */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-console */
+/* eslint-disable one-var */
+/* eslint-disable eqeqeq */
+/* eslint-disable prefer-const */
 /* eslint-disable no-tabs */
 /* eslint-disable radix */
 /* eslint-disable no-shadow */
 /* eslint-disable no-plusplus */
 import { Icon, message } from 'antd';
+import fetch from 'dva/fetch';
 import React from 'react';
-import socket from '../services/socket.js';
-
+import { apiServer } from '../utils/config';
 
 const removeProps = ['DevSN', 'DevID', 'DevName', 'SiteNo', 'MachineNo', 'SimN',
   'AuthorizeNumber2', 'AuthorizeNumber3', 'CurrentAuthorizeNumber',	'UserReserve'];
@@ -39,10 +45,23 @@ export default {
   },
 
   effects: {
-    * query({ payload }, { call, put }) {
-      /* 点击parms tag下的action */
+    *query({ payload }, { put }) {
+      /* 点击parms tag下的action,获取 parms tag 要进行展示的数据 */
       const { DevSN } = payload;
-      socket.emit('Props', { DevSN, type: 1 });
+
+      let queryString;
+      let url;
+      let data;
+
+      queryString = `?DevSN=${DevSN}`;
+      url = `${apiServer}api/Props/getProps${queryString}`;
+      console.log(`${url} +++  开始fetch啦`);
+      yield fetch(url)
+        .then(response => response.json())
+        .then((data1) => { data = data1; console.log(data); });
+      console.log('fetch结束了');
+
+      /* socket.emit('Props', { DevSN, type: 1 });
       const data = yield call(() => {
         return new Promise((resolve) => {
           socket.once('DevProps', (data) => {
@@ -51,57 +70,56 @@ export default {
             resolve(data);
           });
         });
-      });
+      }); */
       yield put({ type: 'querySuccess', payload: { data, DevSN } });
     },
     *querySuccess({ payload }, { put }) {
-      /**
-       * @function 对获取到的数据进行处理，得到要在页面上展示的信息
-       */
       const { data, DevSN } = payload;
-      const content = [];
-      const props = [];
-      const values = [];
-      for (let i = 0; i < data.length; i++) {
-        props.push(data[i]);
-        values.push(data[data[i]]);
+      let content = [];
+      let props = [];
+      let values = [];
+      for (let prop in data) {
+        props.push(prop);
+        values.push(data[prop]);
       }
-      const text = new Array(props.length);
-      const relayValue = [];
+      let text = new Array(props.length);
+      let relayValue = [];
       for (let i = 0; i < props.length; i++) {
-        if (!removeProps.find(prop => prop === props[i])) {
+        if (!removeProps.find(prop => prop == props[i])) {
           if (!(/Relay\d/.test(props[i]))) {
-            if (time1Props.find(prop => prop === props[i])) {
+            if (time1Props.find(prop => prop == props[i])) {
               text[i] = time1(values[i]);
-            } else if (checkProps.find(prop => prop === props[i])) {
+            } else if (checkProps.find(prop => prop == props[i])) {
               text[i] = check(values[i]);
-            } else if (Object.keys(radioValue).find(prop => prop === props[i])) {
-              text[i] = radio(radioValue[props[i]][parseInt(values[i], 10)]);
+            } else if (Object.keys(radioValue).find(prop => prop == props[i])) {
+              text[i] = radio(radioValue[props[i]][parseInt(values[i])]);
             } else {
               text[i] = input(values[i]);
             }
           } else {
-            relayValue.push(parseInt(values[i], 10));
-            if (relayValue.length === 8) {
+            relayValue.push(parseInt(values[i]));
+            if (relayValue.length == 8) {
               text[i] = relay(relayValue);
             }
           }
         }
       }
       let initIndex = 0;
-      while (text[initIndex] === null && initIndex < text.length) { initIndex++; }
+      while (text[initIndex] == null && initIndex < text.length) { initIndex++; }
       for (let i = initIndex; i < text.length;) {
-        let prop1;
-        let prop2;
-        const value1 = text[i];
+        let prop1,
+          value1,
+          prop2,
+          value2;
+        value1 = text[i];
         if (!(/Relay\d/.test(props[i]))) {
           prop1 = props[i];
         } else {
           prop1 = 'Relay';
         }
         i++;
-        while (text[i] === null && i < text.length) { i++; }
-        const value2 = text[i];
+        while (text[i] == null && i < text.length) { i++; }
+        value2 = text[i];
         if (!(/Relay\d/.test(props[i]))) {
           prop2 = props[i];
         } else {
@@ -115,19 +133,37 @@ export default {
           value2,
         });
         i++;
-        while (text[i] === null && i < text.length) { i++; }
+        while (text[i] == null && i < text.length) { i++; }
       }
       yield put({ type: 'save', payload: { parms: data, data: content, DevSN } });
     },
-    *alter({ payload }, { select, put, call }) {
+    *alter({ payload }, { select, put }) {
       /* 在parms tag下，点击Alter调用 */
       const state = yield select(state => state.parmsDetail);
+      let setProps = '';
+      let url;
+      let queryString;
+      let result;
+
       if (state.alter) {
         if (Object.keys(state.dataAltered).length === 0) {
           yield put({ type: 'save', payload: { alter: false } });
         } else {
-          yield socket.emit('Props', { type: 2, props: state.dataAltered, DevSN: state.DevSN });
-          const result = yield call(() => {
+          for (let prop in state.dataAltered) {
+            setProps += `${prop} = '${state.dataAltered[prop]}',`;
+          }
+
+          queryString = `?alteredProps=${setProps.slice(0, -1)}&DevSN=${state.DevSN}`;
+          url = `${apiServer}api/Props/alterProps${queryString}`;
+          console.log(url);
+
+          yield fetch(url)
+            .then(response => response.json())
+            .then((data) => { result = data; console.log(`result:${result}`); });
+
+          // yield socket.emit('Props', { type: 2, props: state.dataAltered, DevSN: state.DevSN });
+
+          /* const result = yield call(() => {
             return new Promise((resolve) => {
               socket.once('alterProps', (data) => {
                 console.log('once(alterProps)');
@@ -135,8 +171,9 @@ export default {
                 resolve(data);
               });
             });
-          });
-          if (result) {
+          }); */
+
+          if (result != -1) {
             message.success('Succeed to alter parms.');
             yield put({ type: 'save', payload: { alter: false, dataAltered: {} } });
           } else {

@@ -1,8 +1,12 @@
+/* eslint-disable prefer-const */
+/* eslint-disable no-multiple-empty-lines */
+/* eslint-disable no-console */
 /* eslint-disable no-shadow */
 /* eslint-disable max-len */
 /* eslint-disable no-plusplus */
 import pathToRegexp from 'path-to-regexp';
-import socket from '../services/socket.js';
+import fetch from 'dva/fetch';
+import { apiServer } from '../utils/config';
 
 export default {
   namespace: 'detail',
@@ -21,23 +25,46 @@ export default {
     setup({ dispatch, history }) {
       history.listen(({ pathname }) => {
         const match = pathToRegexp('/devices/:DevSN').exec(pathname);
+        let queryString;
+        let url;
         if (match) {
           /**
            * match[0]: devices
            * match[1]: DevSN
            */
-          socket.emit('tableData', { DevSN: match[1], type: 1 });
-          socket.once('deviceData', (data) => {
+
+          /* https://localhost:44382/api/tableData/getDetail?DevSN=862952025794560 */
+
+          queryString = `?DevSN=${match[1]}`;
+          url = `${apiServer}api/tableData/getDetail${queryString}`;
+
+          fetch(url)
+          .then(response => response.json())
+          .then((data) => {
             /**
              * data:请求数据库返回的数据。格式需要进一步确定：
              * 'status'：将数据处理，将处理结果content放入state
              * 'constParm'：同步操作，将data数据放入detail中的constParm字段中
              */
-            console.log("emit('tableData') once('deviceData')");
+            console.log("from fetch emit('tableData') once('deviceData')");
             console.log(data);
             dispatch({ type: 'status', payload: { data: data[0], DevSN: match[1], statusNo: 1 } });
             dispatch({ type: 'constParm', payload: { data: data[1] } });
           });
+
+
+          // socket.emit('tableData', { DevSN: match[1], type: 1 });
+          // socket.once('deviceData', (data) => {
+          //   /**
+          //    * data:请求数据库返回的数据。格式需要进一步确定：
+          //    * 'status'：将数据处理，将处理结果content放入state
+          //    * 'constParm'：同步操作，将data数据放入detail中的constParm字段中
+          //    */
+          //   console.log("emit('tableData') once('deviceData')");
+          //   console.log(data);
+          //   dispatch({ type: 'status', payload: { data: data[0], DevSN: match[1], statusNo: 1 } });
+          //   dispatch({ type: 'constParm', payload: { data: data[1] } });
+          // });
         }
       });
     },
@@ -65,57 +92,101 @@ export default {
       }
       yield put({ type: 'queryStatus', payload: { DevSN, No } });
     },
-    *queryStatus({ payload }, { call, put }) {
+
+
+
+    /* 三个type=2 */
+    *queryStatus({ payload }, { put }) {
       /**
        * 点击Status标签的action
        * yield call：用以调用异步逻辑
        * 到时候改写的主要任务：用ajax异步获取数据，采用promise对象
        */
       const { DevSN, No } = payload;
-      socket.emit('tableData', { DevSN, No, table: 1, type: 2 });
+      let queryString;
+      let url;
+      let data;
+
+      /* socket.emit('tableData', { DevSN, No, table: 1, type: 2 });
       const data = yield call(() => {
         return new Promise((resolve) => {
           socket.once('deviceData', (data) => {
+            console.log('emit tableData  type 2');
+            console.log(data);
             resolve(data);
           });
         });
-      });
+      }); */
+
+      queryString = `?DevSN=${DevSN}&No=${No}&table=1`;
+      url = `${apiServer}api/tableData/getData${queryString}`;
+      yield fetch(url)
+        .then(response => response.json())
+        .then((data1) => { data = data1; });
+
       yield put({ type: 'status', payload: { data: data[0][0], DevSN, statusNo: (No === 'last' ? data[1] : No) } });
     },
-    *queryMcTrans({ payload }, { put, call }) {
+    *queryMcTrans({ payload }, { put }) {
       /**
        * 点击McTrans标签的action
        */
       const { DevSN, page, pageSize } = payload;
-      socket.emit('tableData', { DevSN, table: 2, type: 2, No: page, pageSize });
+      let queryString;
+      let url;
+      let data;
+
+
+      /* socket.emit('tableData', { DevSN, table: 2, type: 2, No: page, pageSize });
       const data = yield call(() => {
         return new Promise((resolve) => {
           socket.once('deviceData', (data) => {
             resolve(data);
           });
         });
-      });
+      }); */
+
+      queryString = `?DevSN=${DevSN}&table=2&No=${page}&pageSize=${pageSize}`;
+      url = `${apiServer}api/tableData/getData${queryString}`;
+      yield fetch(url)
+        .then(response => response.json())
+        .then((data1) => { data = data1; });
+
       yield put({ type: 'McTrans', payload: { data: data[0], mcTransNo: page, mcTransTotalNo: data[1] } });
     },
-    *queryAlarm({ payload }, { put, call }) {
+    *queryAlarm({ payload }, { put }) {
       /**
        * 点击Alarm标签的action
        */
       const { DevSN, page, pageSize } = payload;
-      socket.emit('tableData', { DevSN, table: 3, type: 2, No: page, pageSize });
+      let queryString;
+      let url;
+      let data;
+
+
+      /* socket.emit('tableData', { DevSN, table: 3, type: 2, No: page, pageSize });
       const data = yield call(() => {
         return new Promise((resolve) => {
           socket.once('deviceData', (data) => {
             resolve(data);
           });
         });
-      });
+      }); */
+
+      queryString = `?DevSN=${DevSN}&table=3&No=${page}&pageSize=${pageSize}`;
+      url = `${apiServer}api/tableData/getData${queryString}`;
+      yield fetch(url)
+        .then(response => response.json())
+        .then((data1) => { data = data1; });
+
       yield put({ type: 'Alarm', payload: { data: data[0], alarmNo: page, alarmTotalNo: data[1] } });
     },
+
+
     *queryParms({ payload }, { put }) {
       /* 点击parms tag下的action */
       const { checked } = payload;
       if (checked) {
+        console.log('in *queryParms');
         yield put({ type: 'save', payload: { checked: [false, false, true, false] } });
       }
     },

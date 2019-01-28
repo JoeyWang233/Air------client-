@@ -64,8 +64,8 @@ class Devices extends React.Component {
   fetch = (params = { DevSN: '', type: 0, page: 1 }) => {
     const lists = [];
     this.setState({ loading: true });
-    const queryString = `?DevSN=${params.DevSN}&type=${params.type}&page=${params.page}`;
-    const url = `${apiServer}api/Props${queryString}`;
+    const queryString = `?DevSN=${params.DevSN}&page=${params.page}`;
+    const url = `${apiServer}api/Props/getList${queryString}`;
     console.log(url);
 
     fetch(url)
